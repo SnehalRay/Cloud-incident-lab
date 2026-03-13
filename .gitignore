@@ -1,0 +1,236 @@
+# ──────────────────────────────────────────
+# Environment & Secrets
+# ──────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.env
+secrets/
+credentials/
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+
+# ──────────────────────────────────────────
+# Java / Spring Boot
+# ──────────────────────────────────────────
+target/
+*.class
+*.jar
+*.war
+*.ear
+*.nar
+hs_err_pid*
+.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+# Maven
+.mvn/
+mvnw
+mvnw.cmd
+
+# Gradle
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+gradle/
+gradlew
+gradlew.bat
+
+# ──────────────────────────────────────────
+# Python
+# ──────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyo
+*.pyd
+.Python
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+.dmypy.json
+.ruff_cache/
+*.egg-info/
+dist/
+build/
+eggs/
+parts/
+var/
+sdist/
+develop-eggs/
+.installed.cfg
+lib/
+lib64/
+
+# Virtual environments
+venv/
+env/
+.venv/
+.env/
+ENV/
+env.bak/
+venv.bak/
+
+# ──────────────────────────────────────────
+# Node / React / TypeScript
+# ──────────────────────────────────────────
+node_modules/
+dist/
+build/
+.next/
+out/
+.nuxt/
+.cache/
+.parcel-cache/
+*.tsbuildinfo
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.npm
+.yarn-integrity
+.pnp.*
+
+# ──────────────────────────────────────────
+# Docker
+# ──────────────────────────────────────────
+# Keep Compose files tracked, ignore generated volumes/data
+docker/volumes/
+docker/data/
+
+# Docker override files (local dev overrides, not for sharing)
+docker-compose.override.yml
+
+# ──────────────────────────────────────────
+# Databases & Persistent Data
+# ──────────────────────────────────────────
+*.db
+*.sqlite
+*.sqlite3
+postgres-data/
+redis-data/
+data/
+
+# ──────────────────────────────────────────
+# Vector Store
+# ──────────────────────────────────────────
+chroma-data/
+chromadb/
+*.chroma
+
+# ──────────────────────────────────────────
+# Monitoring / Observability local data
+# ──────────────────────────────────────────
+infra/prometheus/data/
+infra/grafana/data/
+infra/loki/data/
+infrastructure/prometheus/data/
+infrastructure/grafana/data/
+infrastructure/loki/data/
+
+# ──────────────────────────────────────────
+# Logs
+# ──────────────────────────────────────────
+*.log
+logs/
+*.log.*
+
+# ──────────────────────────────────────────
+# OS Files
+# ──────────────────────────────────────────
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# ──────────────────────────────────────────
+# IDE & Editors
+# ──────────────────────────────────────────
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+.project
+.classpath
+.settings/
+.factorypath
+
+# ──────────────────────────────────────────
+# Ollama (local models are large)
+# ──────────────────────────────────────────
+models/
+*.gguf
+*.bin
+
+# ──────────────────────────────────────────
+# Scripts output
+# ──────────────────────────────────────────
+# Seed and reset scripts may dump output files
+scripts/*.out
+scripts/*.dump
+*.sql.bak
+
+# ──────────────────────────────────────────
+# Incident scenario state
+# ──────────────────────────────────────────
+# Any state files written during scenario runs
+incident-scenarios/*.state
+incident-scenarios/*.pid
+
+# ──────────────────────────────────────────
+# Spring Boot local config overrides
+# ──────────────────────────────────────────
+application-local.yml
+application-local.properties
+**/application-local.yml
+**/application-local.properties
+
+# ──────────────────────────────────────────
+# Maven wrapper jar (too large, regenerated)
+# ──────────────────────────────────────────
+**/mvnw
+**/mvnw.cmd
+**/.mvn/wrapper/maven-wrapper.jar
+
+# ──────────────────────────────────────────
+# React / Vite build artifacts
+# ──────────────────────────────────────────
+services/frontend-app/dist/
+services/frontend-app/.vite/
+
+# ──────────────────────────────────────────
+# Postgres init dump (generated, not source)
+# ──────────────────────────────────────────
+infra/postgres/pgdata/
+infrastructure/postgres/pgdata/
+
+# ──────────────────────────────────────────
+# Misc
+# ──────────────────────────────────────────
+tmp/
+temp/
+.tmp/
+coverage/
+*.bak
+*.orig
+*.swp

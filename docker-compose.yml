@@ -1,0 +1,62 @@
+services:
+
+  # ──────────────────────────────────────────────────────────
+  # PostgreSQL — primary database
+  # ──────────────────────────────────────────────────────────
+  postgres:
+    image: postgres:15-alpine
+    container_name: incident-lab-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB:       ${POSTGRES_DB}
+      POSTGRES_USER:     ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./infrastructure/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    networks:
+      - incident-lab-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # ──────────────────────────────────────────────────────────
+  # Redis — cache layer
+  # ──────────────────────────────────────────────────────────
+  redis:
+    image: redis:7-alpine
+    container_name: incident-lab-redis
+    restart: unless-stopped
+    command: redis-server /usr/local/etc/redis/redis.conf
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+      - ./infrastructure/redis/redis.conf:/usr/local/etc/redis/redis.conf:ro
+    networks:
+      - incident-lab-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+# ──────────────────────────────────────────────────────────
+# Named volumes — data persists across container restarts
+# ──────────────────────────────────────────────────────────
+volumes:
+  postgres-data:
+  redis-data:
+
+# ──────────────────────────────────────────────────────────
+# Network — all services share one internal network
+# ──────────────────────────────────────────────────────────
+networks:
+  incident-lab-network:
+    driver: bridge
