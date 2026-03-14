@@ -5,6 +5,7 @@
 
 .PHONY: up down destroy reset nuke logs ps \
         ping-redis psql \
+        start-infra start-spring \
         help
 
 # ── Default target ────────────────────────────────────────────
@@ -23,6 +24,9 @@ help:
 	@echo ""
 	@echo "  make ping-redis  Smoke test Redis (should return PONG)"
 	@echo "  make psql        Open a psql shell inside the Postgres container"
+	@echo ""
+	@echo "  make start-infra Start only Postgres + Redis (for local Spring dev)"
+	@echo "  make start-spring Run Spring Boot locally against Docker infra"
 	@echo ""
 
 # ── Start ─────────────────────────────────────────────────────
@@ -68,6 +72,28 @@ ps:
 # ── Logs ──────────────────────────────────────────────────────
 logs:
 	docker compose logs -f
+
+# ── Local Spring Boot dev ────────────────────────────────────
+# Starts only Postgres + Redis in Docker, then runs the Spring Boot app
+# directly on your machine (no Docker build needed — fast iteration).
+#
+# DB_URL is overridden to use localhost:5433 because that's the host-
+# machine port that docker-compose maps from the container's 5432.
+start-infra:
+	docker compose up -d postgres redis
+	@echo ""
+	@echo "Postgres (localhost:5433) and Redis (localhost:6379) are up."
+
+start-spring: start-infra
+	@echo ""
+	@echo "Starting Spring Boot locally..."
+	cd services/backend-app/backend-spring && \
+	  DB_URL=jdbc:postgresql://localhost:5433/$${POSTGRES_DB:-incidentlab} \
+	  DB_USER=$${POSTGRES_USER:-incidentuser} \
+	  DB_PASSWORD=$${POSTGRES_PASSWORD:-changeme} \
+	  REDIS_HOST=localhost \
+	  REDIS_PORT=6379 \
+	  ./mvnw spring-boot:run
 
 # ── Smoke tests ───────────────────────────────────────────────
 ping-redis:

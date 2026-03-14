@@ -35,7 +35,7 @@ CREATE TABLE IF NOT EXISTS incidents (
 
 -- Items managed by the backend API
 CREATE TABLE IF NOT EXISTS items (
-    id          SERIAL PRIMARY KEY,
+    id          BIGSERIAL PRIMARY KEY,
     name        VARCHAR(200) NOT NULL,
     description TEXT,
     created_at  TIMESTAMP DEFAULT NOW()
