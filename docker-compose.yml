@@ -47,6 +47,30 @@ services:
       retries: 5
       start_period: 5s
 
+  # ──────────────────────────────────────────────────────────
+  # Backend — Spring Boot API
+  # Build path adjusted: project lives in backend-app/backend-spring/
+  # ──────────────────────────────────────────────────────────
+  backend:
+    build: ./services/backend-app/backend-spring
+    container_name: incident-lab-backend
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT:-8080}:8080"
+    environment:
+      DB_URL:        ${DB_URL}
+      DB_USER:       ${DB_USER}
+      DB_PASSWORD:   ${DB_PASSWORD}
+      REDIS_HOST:    ${REDIS_HOST}
+      REDIS_PORT:    ${REDIS_PORT}
+    networks:
+      - incident-lab-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
 # ──────────────────────────────────────────────────────────
 # Named volumes — data persists across container restarts
 # ──────────────────────────────────────────────────────────

@@ -33,6 +33,14 @@ CREATE TABLE IF NOT EXISTS incidents (
     summary     TEXT
 );
 
+-- Items managed by the backend API
+CREATE TABLE IF NOT EXISTS items (
+    id          SERIAL PRIMARY KEY,
+    name        VARCHAR(200) NOT NULL,
+    description TEXT,
+    created_at  TIMESTAMP DEFAULT NOW()
+);
+
 -- Seed: register the four core services
 INSERT INTO services (name, description) VALUES
     ('frontend',  'React user-facing application'),
