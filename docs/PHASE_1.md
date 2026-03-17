@@ -166,6 +166,24 @@ COPY --from=build /app/target/*.jar app.jar
 ENTRYPOINT ["java", "-jar", "app.jar"]
 ```
 
+### 4.6 — Rate Limiter *(additional)*
+
+Per-instance rate limiting on `POST /api/items` using Redis as shared state. Each frontend instance is identified by an `X-Instance-ID` header.
+
+- [ ] Read `X-Instance-ID` header from every `POST /api/items` request
+- [ ] Implement a sliding window counter in Redis — key pattern: `rate_limit:<instance-id>`
+- [ ] Limit: **2 requests per 3 seconds per instance**
+- [ ] Return `429 Too Many Requests` when exceeded
+- [ ] On violation, push a job to `jobs:queue`:
+  ```json
+  {
+    "type": "rate_limit_violation",
+    "instance_id": "instance-a",
+    "endpoint": "POST /api/items",
+    "timestamp": "2026-03-17T10:00:00Z"
+  }
+  ```
+
 ---
 
 ## Step 5 — Frontend Service (React)
@@ -208,40 +226,58 @@ COPY --from=build /app/dist /usr/share/nginx/html
 EXPOSE 80
 ```
 
+### 5.5 — Instance ID & 429 Handling *(additional)*
+
+- [ ] Assign a hardcoded `X-Instance-ID` per running frontend instance (e.g. `instance-a`, `instance-b`, `instance-c`)
+- [ ] Send the header on every `POST /api/items` request
+- [ ] Handle `429` responses with a clear UI message: *"Too many requests — slow down"*
+- [ ] Log the rejection to the browser console with a timestamp
+
 ---
 
-## Step 6 — Worker Service (Python)
+## Step 6 — Worker Service (Rust)
 
-A simple background job processor. It pulls jobs from a Redis list and processes them.
+A Rust background worker that consumes jobs from Redis and writes audit records to Postgres.
 
-### 6.1 — What It Does
+### 6.1 — Bootstrap
 
-- Reads jobs from a Redis list (`jobs:queue`)
-- Processes each job (simulate with a sleep + log)
-- Writes job completion records to Postgres
+- [ ] Create `services/worker/` as a Rust project (`cargo init`)
+- [ ] Dependencies: `tokio`, `redis`, `sqlx`, `serde`, `serde_json`
 
 ### 6.2 — Implement
 
-- [ ] Create `services/worker/worker.py`:
-  - Connect to Redis using `redis-py`
-  - Connect to Postgres using `psycopg2`
-  - Loop: `BLPOP jobs:queue` → process → log → repeat
-- [ ] Create `services/worker/requirements.txt`
+- [ ] Connect to Redis and block on `BLPOP jobs:queue`
+- [ ] Deserialize job payload and handle type `rate_limit_violation`
+- [ ] Add `audit_log` table to `infra/postgres/init.sql`:
+  ```sql
+  CREATE TABLE audit_log (
+    id SERIAL PRIMARY KEY,
+    event_type VARCHAR(100) NOT NULL,
+    instance_id VARCHAR(100),
+    endpoint VARCHAR(200),
+    created_at TIMESTAMP DEFAULT NOW()
+  );
+  ```
+- [ ] Write one row to `audit_log` per processed job
+- [ ] Loop back and wait for the next job
 - [ ] Create `services/worker/Dockerfile`
 
 ```dockerfile
-FROM python:3.12-slim
+FROM rust:1.77-alpine AS build
 WORKDIR /app
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
-CMD ["python", "worker.py"]
+RUN cargo build --release
+
+FROM alpine:3.19
+WORKDIR /app
+COPY --from=build /app/target/release/worker .
+CMD ["./worker"]
 ```
 
 ### 6.3 — Add to Docker Compose
 
 - [ ] Add `worker` service to `docker-compose.yml`
-  - Pass `REDIS_HOST`, `REDIS_PORT`, `DB_URL` from `.env`
+  - Pass `REDIS_URL`, `DATABASE_URL` from `.env`
   - Add `depends_on: [postgres, redis]`
 
 ---
