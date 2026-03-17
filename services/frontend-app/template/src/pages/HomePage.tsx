@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { apiFetch, apiPost, logError } from '../api'
+import { apiFetch, apiPost, logError, RateLimitError } from '../api'
 
 interface Item {
   id: number
@@ -41,7 +41,11 @@ export default function HomePage() {
       })
       .catch((err: unknown) => {
         logError('POST /api/items', err)
-        setSubmitError(err instanceof Error ? err.message : 'Failed to create item')
+        if (err instanceof RateLimitError) {
+          setSubmitError('Too many requests — slow down')
+        } else {
+          setSubmitError(err instanceof Error ? err.message : 'Failed to create item')
+        }
       })
       .finally(() => setSubmitting(false))
   }
