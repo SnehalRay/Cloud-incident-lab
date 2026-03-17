@@ -139,6 +139,54 @@
   }
 }
 
+/* Add item form */
+.item-form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.form-input {
+  flex: 1 1 160px;
+  padding: 8px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text-h);
+  font: inherit;
+  font-size: 15px;
+
+  &:focus {
+    outline: 2px solid var(--accent);
+    outline-offset: 1px;
+  }
+}
+
+.form-submit {
+  padding: 8px 18px;
+  border: none;
+  border-radius: 6px;
+  background: var(--accent);
+  color: #fff;
+  font: inherit;
+  font-size: 15px;
+  cursor: pointer;
+  white-space: nowrap;
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+}
+
+.form-error {
+  width: 100%;
+  margin: 0;
+  font-size: 13px;
+  color: #b91c1c;
+}
+
 /* Badges */
 .badge {
   font-size: 12px;

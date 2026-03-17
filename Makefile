@@ -5,7 +5,7 @@
 
 .PHONY: up down destroy reset nuke logs ps \
         ping-redis psql \
-        start-infra start-spring \
+        start-infra start-spring start-frontend \
         help
 
 # ── Default target ────────────────────────────────────────────
@@ -25,8 +25,9 @@ help:
 	@echo "  make ping-redis  Smoke test Redis (should return PONG)"
 	@echo "  make psql        Open a psql shell inside the Postgres container"
 	@echo ""
-	@echo "  make start-infra Start only Postgres + Redis (for local Spring dev)"
-	@echo "  make start-spring Run Spring Boot locally against Docker infra"
+	@echo "  make start-infra    Start only Postgres + Redis (for local Spring dev)"
+	@echo "  make start-spring   Run Spring Boot locally against Docker infra"
+	@echo "  make start-frontend Run the React frontend dev server (localhost:5173)"
 	@echo ""
 
 # ── Start ─────────────────────────────────────────────────────
@@ -94,6 +95,12 @@ start-spring: start-infra
 	  REDIS_HOST=localhost \
 	  REDIS_PORT=6379 \
 	  ./mvnw spring-boot:run
+
+# ── Local frontend dev ────────────────────────────────────────
+start-frontend:
+	@echo ""
+	@echo "Starting React dev server at http://localhost:5173 ..."
+	cd services/frontend-app/template && npm run dev
 
 # ── Smoke tests ───────────────────────────────────────────────
 ping-redis:
