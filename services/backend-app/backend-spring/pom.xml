@@ -86,7 +86,13 @@
 			<artifactId>spring-boot-starter-webmvc-test</artifactId>
 			<scope>test</scope>
 		</dependency>
-	</dependencies>
+	
+   <dependency>
+     <groupId>io.gravitee.am.service</groupId>
+     <artifactId>gravitee-am-service</artifactId>
+     <version>4.6.14</version>
+   </dependency>
+ </dependencies>
 
 	<build>
 		<plugins>

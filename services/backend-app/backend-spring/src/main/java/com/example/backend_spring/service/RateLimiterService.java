@@ -24,24 +24,33 @@ public class RateLimiterService {
     private final ObjectMapper objectMapper;
 
     public boolean isAllowed(String clientId){
-        String key = "rate_limiter:"+clientId;
+        String key = "rate_limiter:" + clientId;
+
+        // atomically increment the request counter for this client in Redis
+        // if the key doesn't exist yet, Redis creates it at 0 and returns 1
         Long count = redisTemplate.opsForValue().increment(key);
-        if (count!=null && count == 1) {
-            // Set expiration only on the first increment to create a time window
+
+        if (count != null && count == 1) {
+            // first request in this window — start the clock by setting an expiry
+            // after TIME_WINDOW_MS the key is deleted and the counter resets automatically
             redisTemplate.expire(key, TIME_WINDOW_MS, java.util.concurrent.TimeUnit.MILLISECONDS);
         }
-        return count != null && count <= MAX_REQUESTS;
 
+        // allow if within the limit, block if count exceeds MAX_REQUESTS
+        return count != null && count <= MAX_REQUESTS;
     }
 
     public void pushViolationJob(String instanceId, String endpoint) {
         try {
+            // build the job payload as JSON — the Rust worker will deserialize this
             String payload = objectMapper.writeValueAsString(Map.of(
                     "type", "rate_limit_violation",
                     "instance_id", instanceId,
                     "endpoint", endpoint,
                     "timestamp", Instant.now().toString()
             ));
+
+            // push to the right end of the Redis list — worker consumes from the left (BLPOP)
             redisTemplate.opsForList().rightPush(QUEUE_KEY, payload);
             log.info("rate_limit_job_queued instance_id={} endpoint={}", instanceId, endpoint);
         } catch (Exception e) {
